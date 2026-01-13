@@ -15,7 +15,7 @@ export function useAgentGeneration() {
     try {
       // Generate agent persona
       const personaPrompt = existingAgents.length > 0
-        ? `${AGENT_GENERATION_PROMPT(briefText)}\n\nIMPORTANT: Create a persona DIFFERENT from these existing experts:\n${existingAgents.map(a => `- ${a.name}: ${a.domain}, ${a.theoreticalFramework}`).join('\n')}`
+        ? `${AGENT_GENERATION_PROMPT(briefText)}\n\nIMPORTANT: Create a persona with a DIFFERENT ideological perspective and domain from these existing experts. Aim for genuine intellectual diversity—if existing experts lean progressive, consider conservative/libertarian/traditionalist perspectives, and vice versa:\n${existingAgents.map(a => `- ${a.name}: ${a.domain}, ${a.theoreticalFramework}`).join('\n')}`
         : AGENT_GENERATION_PROMPT(briefText);
 
       const personaResponse = await callOpenRouter({

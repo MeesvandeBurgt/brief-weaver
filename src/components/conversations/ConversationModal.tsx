@@ -103,9 +103,9 @@ export function ConversationModal({
 
         {/* Footer */}
         {conversation.status === 'completed' && conversation.summary && (
-          <div className="p-4 border-t border-border bg-muted/30">
-            <h3 className="font-medium text-foreground mb-2">Conversation Summary</h3>
-            <p className="text-sm text-muted-foreground">{conversation.summary}</p>
+          <div className="p-4 border-t border-border bg-muted/30 max-h-32 overflow-y-auto scrollbar-thin">
+            <h3 className="font-medium text-foreground mb-2 text-sm">Conversation Summary</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{conversation.summary}</p>
           </div>
         )}
       </div>
