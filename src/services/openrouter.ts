@@ -1,6 +1,7 @@
 import { OpenRouterRequest, OpenRouterResponse, OpenRouterMessage } from '@/types';
 
-const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const IS_DEV = import.meta.env.DEV;
+const API_URL = IS_DEV ? 'https://openrouter.ai/api/v1/chat/completions' : '/.netlify/functions/chat';
 const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 const MODEL = 'xiaomi/mimo-v2-flash:free';
 
@@ -34,10 +35,12 @@ export async function callOpenRouter(
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${API_KEY}`,
           'Content-Type': 'application/json',
-          'HTTP-Referer': window.location.origin,
-          'X-Title': 'Critical Design Brief Analyzer',
+          ...(IS_DEV && API_KEY ? { 'Authorization': `Bearer ${API_KEY}` } : {}),
+          ...(IS_DEV ? {
+            'HTTP-Referer': window.location.origin,
+            'X-Title': 'Critical Design Brief Analyzer'
+          } : {}),
         },
         body: JSON.stringify(fullRequest),
       });
@@ -90,10 +93,12 @@ export async function* streamOpenRouter(
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${API_KEY}`,
       'Content-Type': 'application/json',
-      'HTTP-Referer': window.location.origin,
-      'X-Title': 'Critical Design Brief Analyzer',
+      ...(IS_DEV && API_KEY ? { 'Authorization': `Bearer ${API_KEY}` } : {}),
+      ...(IS_DEV ? {
+        'HTTP-Referer': window.location.origin,
+        'X-Title': 'Critical Design Brief Analyzer'
+      } : {}),
     },
     body: JSON.stringify(fullRequest),
   });
