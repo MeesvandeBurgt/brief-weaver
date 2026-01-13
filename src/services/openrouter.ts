@@ -24,7 +24,7 @@ export async function callOpenRouter(
     model: MODEL,
     ...request,
     temperature: request.temperature ?? 0.8,
-    max_tokens: request.max_tokens ?? 2000,
+    max_tokens: request.max_tokens ?? 4000,
     reasoning: { enabled: true }
   };
 
@@ -86,7 +86,7 @@ export async function* streamOpenRouter(
     ...request,
     stream: true,
     temperature: request.temperature ?? 0.8,
-    max_tokens: request.max_tokens ?? 2000,
+    max_tokens: request.max_tokens ?? 4000,
     reasoning: { enabled: true }
   };
 

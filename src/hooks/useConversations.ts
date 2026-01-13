@@ -101,7 +101,7 @@ export function useConversations(options: UseConversationsOptions = {}) {
         const response = await callOpenRouter({
           messages: [{ role: 'user', content: prompt }],
           temperature: 0.85,
-          max_tokens: 800,
+          max_tokens: 2000,
         });
 
         const message: Message = {
@@ -137,7 +137,7 @@ export function useConversations(options: UseConversationsOptions = {}) {
           ),
         }],
         temperature: 0.7,
-        max_tokens: 600,
+        max_tokens: 2000,
       });
 
       const completedConv: Conversation = {
@@ -206,7 +206,7 @@ export function useConversations(options: UseConversationsOptions = {}) {
         content: FRAME_SYNTHESIS_PROMPT(summaries),
       }],
       temperature: 0.8,
-      max_tokens: 2000,
+      max_tokens: 4000,
     });
 
     try {

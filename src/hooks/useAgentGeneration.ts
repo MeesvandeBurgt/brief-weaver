@@ -21,7 +21,7 @@ export function useAgentGeneration() {
       const personaResponse = await callOpenRouter({
         messages: [{ role: 'user', content: personaPrompt }],
         temperature: 0.9,
-        max_tokens: 1000,
+        max_tokens: 4000,
       });
 
       // Parse JSON response
@@ -61,7 +61,7 @@ export function useAgentGeneration() {
           content: AGENT_STANCE_PROMPT(agent, briefText),
         }],
         temperature: 0.85,
-        max_tokens: 1500,
+        max_tokens: 4000,
       });
 
       agent.initialStance = stanceResponse.content;
