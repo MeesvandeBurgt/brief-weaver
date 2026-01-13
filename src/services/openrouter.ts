@@ -1,8 +1,8 @@
 import { OpenRouterRequest, OpenRouterResponse } from '@/types';
 
 const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const API_KEY = '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';
-const MODEL = 'meta-llama/llama-3.1-405b-instruct:free';
+const API_KEY = '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';
+const MODEL = 'xiaomi/mimo-v2-flash:free';
 
 interface RequestOptions {
   maxRetries?: number;
@@ -16,7 +16,7 @@ async function sleep(ms: number): Promise<void> {
 export async function callOpenRouter(
   request: Omit<OpenRouterRequest, 'model'>,
   options: RequestOptions = {}
-): Promise<string> {
+): Promise<OpenRouterMessage> {
   const { maxRetries = 3, initialDelay = 1000 } = options;
 
   const fullRequest: OpenRouterRequest = {
@@ -24,6 +24,7 @@ export async function callOpenRouter(
     ...request,
     temperature: request.temperature ?? 0.8,
     max_tokens: request.max_tokens ?? 2000,
+    reasoning: { enabled: true }
   };
 
   let lastError: Error | null = null;
@@ -54,15 +55,15 @@ export async function callOpenRouter(
       }
 
       const data: OpenRouterResponse = await response.json();
-      
+
       if (!data.choices || data.choices.length === 0) {
         throw new Error('No response choices returned');
       }
 
-      return data.choices[0].message.content;
+      return data.choices[0].message;
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
-      
+
       if (attempt < maxRetries - 1) {
         const delay = initialDelay * Math.pow(2, attempt);
         console.log(`Request failed, retrying in ${delay}ms...`, error);
@@ -83,6 +84,7 @@ export async function* streamOpenRouter(
     stream: true,
     temperature: request.temperature ?? 0.8,
     max_tokens: request.max_tokens ?? 2000,
+    reasoning: { enabled: true }
   };
 
   const response = await fetch(API_URL, {

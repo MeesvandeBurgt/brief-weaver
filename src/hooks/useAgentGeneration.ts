@@ -28,7 +28,7 @@ export function useAgentGeneration() {
       let personaData;
       try {
         // Extract JSON from response (handle markdown code blocks)
-        const jsonMatch = personaResponse.match(/\{[\s\S]*\}/);
+        const jsonMatch = personaResponse.content.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error('No JSON found in response');
         personaData = JSON.parse(jsonMatch[0]);
       } catch (parseError) {
@@ -37,7 +37,7 @@ export function useAgentGeneration() {
       }
 
       const agentId = `agent-${Date.now()}-${colorIndex}`;
-      
+
       const agent: Agent = {
         id: agentId,
         name: personaData.name || 'Dr. Unknown',
@@ -64,7 +64,7 @@ export function useAgentGeneration() {
         max_tokens: 1500,
       });
 
-      agent.initialStance = stanceResponse;
+      agent.initialStance = stanceResponse.content;
       agent.status = 'ready';
 
       return agent;
@@ -110,7 +110,7 @@ export function useAgentGeneration() {
         while (!agent && attempts < 3) {
           attempts++;
           agent = await generateAgent(briefText, i, agents);
-          
+
           if (!agent) {
             onAgentUpdate({ ...placeholderAgent, status: 'error', generationAttempts: attempts });
             await new Promise(r => setTimeout(r, 1000)); // Wait before retry

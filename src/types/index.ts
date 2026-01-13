@@ -30,6 +30,7 @@ export interface Message {
   id: string;
   agentId: string;
   content: string;
+  reasoning_details?: string;
   turnNumber: number;
   timestamp: Date;
 }
@@ -76,6 +77,7 @@ export interface AppState {
 export interface OpenRouterMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
+  reasoning_details?: string;
 }
 
 export interface OpenRouterRequest {
@@ -84,6 +86,9 @@ export interface OpenRouterRequest {
   temperature?: number;
   max_tokens?: number;
   stream?: boolean;
+  reasoning?: {
+    enabled: boolean;
+  };
 }
 
 export interface OpenRouterResponse {
@@ -93,6 +98,7 @@ export interface OpenRouterResponse {
     message: {
       role: 'assistant';
       content: string;
+      reasoning_details?: string;
     };
     finish_reason: 'stop' | 'length' | 'content_filter';
   }>;

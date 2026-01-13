@@ -1,11 +1,11 @@
 import { useState, useCallback } from 'react';
 import { Agent, Conversation, Message, Frame } from '@/types';
 import { callOpenRouter } from '@/services/openrouter';
-import { 
-  CONVERSATION_START_PROMPT, 
+import {
+  CONVERSATION_START_PROMPT,
   CONVERSATION_CONTINUE_PROMPT,
   CONVERSATION_SUMMARY_PROMPT,
-  FRAME_SYNTHESIS_PROMPT 
+  FRAME_SYNTHESIS_PROMPT
 } from '@/utils/promptTemplates';
 
 interface UseConversationsOptions {
@@ -24,7 +24,7 @@ export function useConversations(options: UseConversationsOptions = {}) {
 
   const createConversationPairs = useCallback((agents: Agent[]): Conversation[] => {
     const conversations: Conversation[] = [];
-    
+
     for (let i = 0; i < agents.length; i++) {
       for (let j = i + 1; j < agents.length; j++) {
         conversations.push({
@@ -38,7 +38,7 @@ export function useConversations(options: UseConversationsOptions = {}) {
         });
       }
     }
-    
+
     return conversations;
   }, [maxTurns]);
 
@@ -55,13 +55,13 @@ export function useConversations(options: UseConversationsOptions = {}) {
   ): Promise<Conversation> => {
     const agent1 = agents.find(a => a.id === conversation.agent1Id)!;
     const agent2 = agents.find(a => a.id === conversation.agent2Id)!;
-    
-    let currentConv = { 
-      ...conversation, 
+
+    let currentConv = {
+      ...conversation,
       status: 'in_progress' as const,
       startedAt: new Date(),
     };
-    
+
     setCurrentConversationId(conversation.id);
     onConversationUpdate?.(currentConv);
 
@@ -75,12 +75,12 @@ export function useConversations(options: UseConversationsOptions = {}) {
       for (let turn = 0; turn < maxTurns; turn++) {
         const currentSpeaker = speakerOrder[turn];
         const otherSpeaker = currentSpeaker.id === agent1.id ? agent2 : agent1;
-        
+
         setStreamingAgentId(currentSpeaker.id);
         setStreamingContent('');
 
         let prompt: string;
-        
+
         if (turn === 0) {
           prompt = CONVERSATION_START_PROMPT(
             currentSpeaker,
@@ -107,7 +107,8 @@ export function useConversations(options: UseConversationsOptions = {}) {
         const message: Message = {
           id: `msg-${conversation.id}-${turn}`,
           agentId: currentSpeaker.id,
-          content: response,
+          content: response.content,
+          reasoning_details: response.reasoning_details,
           turnNumber: turn + 1,
           timestamp: new Date(),
         };
@@ -142,7 +143,7 @@ export function useConversations(options: UseConversationsOptions = {}) {
       const completedConv: Conversation = {
         ...currentConv,
         status: 'completed' as const,
-        summary: summaryResponse,
+        summary: summaryResponse.content,
         completedAt: new Date(),
       };
 
@@ -172,7 +173,7 @@ export function useConversations(options: UseConversationsOptions = {}) {
       for (const conv of conversations) {
         const completed = await runConversation(conv, agents);
         completedConversations.push(completed);
-        
+
         // Delay between conversations
         await new Promise(r => setTimeout(r, 3000));
       }
@@ -209,11 +210,11 @@ export function useConversations(options: UseConversationsOptions = {}) {
     });
 
     try {
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      const jsonMatch = response.content.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error('No JSON found');
-      
+
       const data = JSON.parse(jsonMatch[0]);
-      
+
       return data.frames.map((frame: any, i: number) => ({
         id: `frame-${i}`,
         title: frame.title,
