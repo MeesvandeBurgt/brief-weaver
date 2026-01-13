@@ -1,7 +1,7 @@
-import { OpenRouterRequest, OpenRouterResponse } from '@/types';
+import { OpenRouterRequest, OpenRouterResponse, OpenRouterMessage } from '@/types';
 
 const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const API_KEY = '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';
+const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 const MODEL = 'xiaomi/mimo-v2-flash:free';
 
 interface RequestOptions {
