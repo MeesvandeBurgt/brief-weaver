@@ -1,19 +1,17 @@
-export const AGENT_GENERATION_PROMPT = (briefText: string) => `You are creating a domain expert persona who would PLAUSIBLY BE CONSULTED on this design brief.
+export const AGENT_GENERATION_PROMPT = (briefText: string) => `You are creating a domain expert persona who brings a distinctive critical lens to design briefs.
 
 Given this design brief:
 """
 ${briefText}
 """
 
-Generate a domain expert persona with these MANDATORY requirements:
+Generate a domain expert persona with these requirements:
 
-1. DOMAIN PROXIMITY: The expert's field must be directly relevant to the brief's subject matter. Ask: "Would a project team realistically invite this person to consult on this brief?" If not, choose a different domain.
+1. THEMATIC CONNECTION: The expert's field should connect to THEMES or TENSIONS in the brief, not its literal subject. For example, a brief about a parking app might attract a labor economist (gig economy), an urban theorist (car dependency), or a disability advocate (mobility justice)—not just a "parking expert."
 
-2. BRIEF GROUNDING: Identify exactly 3 verbatim snippets from the brief that this expert will interrogate. These must be EXACT QUOTES from the brief text.
+2. ANCHORING THEMES: Identify 3 broader themes, tensions, or assumptions in the brief that this expert would interrogate. These should be conceptual hooks (e.g., "the assumption of individual car ownership"), not verbatim quotes.
 
-3. CONSULTATION RATIONALE: Explain in 1-2 sentences why this expert would be consulted for this specific brief.
-
-4. CRITICAL LENS: Apply a coherent worldview from ANY part of the intellectual spectrum. Diversity comes from the LENS, not random domains. Examples:
+3. CRITICAL LENS: Apply a coherent worldview from ANY part of the intellectual spectrum. Diversity comes from the LENS:
    - Progressive: feminist, post-colonial, Marxist, critical race theory, disability studies
    - Conservative: traditionalist, Burkean, religious orthodox, cultural conservative
    - Libertarian: Austrian economics, classical liberal, anarcho-capitalist
@@ -25,23 +23,23 @@ Generate a domain expert persona with these MANDATORY requirements:
    - Pragmatist: engineering-focused, evidence-based policy, design thinking
    - Skeptical: contrarian, heterodox, anti-establishment (from any direction)
 
-5. Specific thinkers, movements, or historical precedents they reference
-6. A distinctive voice and argumentation style
+4. Specific thinkers, movements, or historical precedents they reference
+5. A distinctive voice and argumentation style
 
-IMPORTANT: Be genuinely pluralist in your critical lens. Do not default to progressive/left-academic perspectives.
+IMPORTANT: Be genuinely pluralist. Do not default to progressive/left-academic perspectives.
 
 You MUST respond with ONLY valid JSON in this exact format (no additional text):
 {
   "name": "Dr. [Full Name]",
   "title": "[Academic/Professional Title]",
-  "domain": "[Specific domain of expertise - must be relevant to brief]",
+  "domain": "[Specific domain of expertise]",
   "theoreticalFramework": "[Critical lens/framework name]",
   "historicalFocus": "[Time period or movement]",
   "keyReferences": ["Thinker 1", "Thinker 2", "Historical Event/Movement"],
   "stanceKeywords": ["keyword1", "keyword2", "keyword3"],
   "criticalPerspective": "[2-3 sentence summary of their anticipated critique approach]",
-  "briefSnippets": ["exact quote 1 from brief", "exact quote 2 from brief", "exact quote 3 from brief"],
-  "consultationRationale": "[1-2 sentences explaining why this expert would be consulted for this brief]"
+  "briefSnippets": ["thematic anchor 1", "thematic anchor 2", "thematic anchor 3"],
+  "consultationRationale": "[1-2 sentences explaining the conceptual bridge between their expertise and this brief]"
 }`;
 
 export const AGENT_VALIDATION_PROMPT = (agent: {
@@ -95,12 +93,12 @@ Existing experts already cover these perspectives:
 ${existingAgents.map(a => `- ${a.name}: ${a.domain}, ${a.theoreticalFramework}`).join('\n')}
 
 Create a wildcard expert who:
-1. Comes from a domain NOT obviously related to the brief
-2. Has a CONCRETE BRIDGE to the brief—a specific, defensible reason their expertise applies
+1. Comes from a domain NOT obviously related to the brief's literal subject
+2. Has a CONCEPTUAL BRIDGE to the brief—a surprising but defensible thematic connection
 3. Will surface insights that domain-proximate experts would miss
 4. Brings historical depth and intellectual rigor despite the unconventional angle
 
-The wildcard must NOT be random—they need a compelling "bridge" explaining why their perspective matters for this specific brief.
+The wildcard must NOT be random—they need a compelling conceptual bridge explaining why their perspective matters for the deeper themes in this brief.
 
 You MUST respond with ONLY valid JSON:
 {
@@ -112,8 +110,8 @@ You MUST respond with ONLY valid JSON:
   "keyReferences": ["Thinker 1", "Thinker 2", "Historical Event/Movement"],
   "stanceKeywords": ["keyword1", "keyword2", "keyword3"],
   "criticalPerspective": "[2-3 sentence summary of their anticipated critique approach]",
-  "briefSnippets": ["exact quote 1 from brief", "exact quote 2 from brief", "exact quote 3 from brief"],
-  "wildcardBridge": "[2-3 sentences explaining the concrete connection between their unexpected domain and this brief]"
+  "briefSnippets": ["thematic anchor 1", "thematic anchor 2", "thematic anchor 3"],
+  "wildcardBridge": "[2-3 sentences explaining the conceptual connection between their unexpected domain and the deeper themes in this brief]"
 }`;
 
 export const AGENT_STANCE_PROMPT = (agent: {
@@ -207,22 +205,31 @@ export const CONVERSATION_SUMMARY_PROMPT = (
 
 ${conversationHistory}
 
-Provide a structured summary:
-1. CORE DISAGREEMENT: [1-2 sentences on the fundamental tension]
-2. KEY INSIGHTS:
-   - [Insight 1]
-   - [Insight 2]
-   - [Insight 3]
-3. META-NARRATIVE SURFACED: [What hidden assumption or framework was revealed about the design brief]
-4. UNEXPECTED CONVERGENCE: [Any surprising points of agreement, or "None identified"]
+Provide a structured summary designed to TRIGGER FURTHER DISCUSSION (this is not a final answer, but a springboard):
 
-Focus on what was revealed about the design brief's embedded frameworks, not who "won" the argument. Be concise but specific.`;
+1. CORE TENSION: [1-2 sentences on the fundamental disagreement or productive friction]
+
+2. KEY PROVOCATIONS (questions the team should discuss):
+   - [Provocative question 1 raised by this dialogue]
+   - [Provocative question 2 that remains unresolved]
+   - [Provocative question 3 for the design team to debate]
+
+3. ASSUMPTIONS EXPOSED: [What hidden assumptions about the brief were surfaced?]
+
+4. DISCUSSION HOOKS (conversation starters for a team workshop):
+   - "What if we assumed the opposite of [X]?"
+   - "Who benefits if we [Y]? Who loses?"
+   - "How would this look in [historical/geographic context Z]?"
+
+5. UNRESOLVED TENSIONS: [What fundamental disagreements could not be reconciled, and why do they matter?]
+
+Focus on generating TRIGGERS FOR FURTHER CONVERSATION, not conclusions. The goal is to open up discussion, not close it down.`;
 
 export const FRAME_SYNTHESIS_PROMPT = (summaries: string[]) => `You have analyzed a design brief through multiple critical dialogues. Here are the conversation summaries:
 
 ${summaries.map((s, i) => `--- Conversation ${i + 1} ---\n${s}`).join('\n\n')}
 
-Generate 3-5 "problem frames" or "narrative perspectives" that represent fundamentally different ways to understand this design brief.
+Generate 3-5 "problem frames" that represent fundamentally different ways to understand this design brief. These frames are STARTING POINTS FOR DISCUSSION, not final answers.
 
 You MUST respond with ONLY valid JSON in this exact format (no additional text):
 {
@@ -232,9 +239,11 @@ You MUST respond with ONLY valid JSON in this exact format (no additional text):
       "coreNarrative": "[2-3 sentences describing this way of seeing the problem]",
       "makesVisible": "[What this frame reveals that others obscure]",
       "historicalGrounding": "[Historical or theoretical basis]",
-      "designImplications": "[How a designer might proceed differently with this frame]"
+      "designImplications": "[How a designer might proceed differently with this frame]",
+      "discussionQuestions": ["Provocative question 1 for team discussion", "Provocative question 2", "What-if scenario to explore"],
+      "tensionsWith": "[Which other frames does this conflict with, and why might that tension be productive?]"
     }
   ]
 }
 
-These frames should be genuinely distinct, not variations on a theme. They should help a designer break out of the brief's original constraints.`;
+These frames should be genuinely distinct and designed to SPARK DEBATE within a design team. Include uncomfortable questions and productive tensions. The goal is to open up the problem space, not close it down.`;

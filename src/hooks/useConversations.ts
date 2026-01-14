@@ -222,6 +222,8 @@ export function useConversations(options: UseConversationsOptions = {}) {
         makesVisible: frame.makesVisible,
         historicalGrounding: frame.historicalGrounding,
         designImplications: frame.designImplications,
+        discussionQuestions: frame.discussionQuestions || [],
+        tensionsWith: frame.tensionsWith || '',
         sourceConversations: conversations.map(c => c.id),
       }));
     } catch (err) {

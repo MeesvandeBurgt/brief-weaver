@@ -2,11 +2,6 @@ import { Agent } from '@/types';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Check, AlertCircle, RefreshCw, User, Shuffle, Quote } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 interface AgentCardProps {
   agent: Agent;
@@ -74,24 +69,21 @@ export function AgentCard({ agent, showStance = false }: AgentCardProps) {
                 {agent.criticalPerspective}
               </p>
 
-              {/* Brief Snippets */}
+              {/* Thematic Anchors - More prominent */}
               {agent.briefSnippets && agent.briefSnippets.length > 0 && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-help">
-                      <Quote className="w-3 h-3" />
-                      <span>{agent.briefSnippets.length} brief excerpts to interrogate</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-sm">
-                    <p className="font-medium mb-2">Will interrogate:</p>
-                    <ul className="space-y-1 text-xs">
-                      {agent.briefSnippets.map((snippet, i) => (
-                        <li key={i} className="italic">&ldquo;{snippet.slice(0, 80)}{snippet.length > 80 ? '...' : ''}&rdquo;</li>
-                      ))}
-                    </ul>
-                  </TooltipContent>
-                </Tooltip>
+                <div className="mt-2 p-2 bg-muted/50 rounded-md border border-border">
+                  <p className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1">
+                    <Quote className="w-3 h-3" />
+                    Thematic Anchors
+                  </p>
+                  <ul className="space-y-1">
+                    {agent.briefSnippets.slice(0, 3).map((snippet, i) => (
+                      <li key={i} className="text-xs text-foreground/80 italic pl-2 border-l-2 border-accent/40">
+                        {snippet.slice(0, 60)}{snippet.length > 60 ? '...' : ''}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
 
               {/* Wildcard Bridge */}

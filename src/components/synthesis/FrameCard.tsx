@@ -1,5 +1,5 @@
 import { Frame } from '@/types';
-import { Lightbulb, Eye, BookOpen, ArrowRight } from 'lucide-react';
+import { Lightbulb, Eye, BookOpen, ArrowRight, MessageCircleQuestion, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FrameCardProps {
@@ -25,6 +25,24 @@ export function FrameCard({ frame, index }: FrameCardProps) {
         {frame.coreNarrative}
       </p>
 
+      {/* Discussion Questions - Prominent */}
+      {frame.discussionQuestions && frame.discussionQuestions.length > 0 && (
+        <div className="mb-4 p-4 bg-accent/10 rounded-lg border border-accent/20">
+          <div className="flex items-center gap-2 mb-2">
+            <MessageCircleQuestion className="w-4 h-4 text-accent" />
+            <p className="text-sm font-semibold text-accent">Discussion Starters</p>
+          </div>
+          <ul className="space-y-2">
+            {frame.discussionQuestions.map((q, i) => (
+              <li key={i} className="text-sm text-foreground flex items-start gap-2">
+                <span className="text-accent font-bold">→</span>
+                <span className="italic">{q}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="space-y-3">
         <div className="flex items-start gap-3">
           <Eye className="w-4 h-4 text-accent mt-1 shrink-0" />
@@ -49,6 +67,17 @@ export function FrameCard({ frame, index }: FrameCardProps) {
             <p className="text-sm text-muted-foreground">{frame.designImplications}</p>
           </div>
         </div>
+
+        {/* Tensions - Shows productive conflicts */}
+        {frame.tensionsWith && (
+          <div className="flex items-start gap-3 pt-2 border-t border-border mt-3">
+            <Zap className="w-4 h-4 text-warning mt-1 shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-foreground">Productive Tensions</p>
+              <p className="text-sm text-muted-foreground">{frame.tensionsWith}</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

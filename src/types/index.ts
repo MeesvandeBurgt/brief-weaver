@@ -63,6 +63,8 @@ export interface Frame {
   makesVisible: string;
   historicalGrounding: string;
   designImplications: string;
+  discussionQuestions?: string[];  // Provocative questions for team discussion
+  tensionsWith?: string;           // Which other frames this conflicts with
   sourceConversations: string[];
 }
 
