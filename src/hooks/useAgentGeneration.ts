@@ -217,8 +217,8 @@ export function useAgentGeneration() {
         let attempts = 0;
         let validAgent: Agent | null = null;
 
-        // Retry loop with validation
-        while (!validAgent && attempts < 5) {
+        // Retry loop (only retries on generation failure, not validation)
+        while (!validAgent && attempts < 3) {
           attempts++;
 
           // Generate candidate agent
@@ -232,26 +232,18 @@ export function useAgentGeneration() {
           // Update UI to show validating
           onAgentUpdate({ ...candidate, status: 'validating', generationAttempts: attempts });
 
-          // Validate relevance
+          // Validate relevance (informational only - always accept the agent)
           const validation = await validateAgent(candidate, briefText);
           
-          if (validation && validation.score >= MIN_RELEVANCE_SCORE) {
+          if (validation) {
             candidate.relevanceScore = validation.score;
             candidate.relevanceRationale = validation.rationale;
-            
-            // Generate stance
-            candidate.initialStance = await generateStance(candidate, briefText);
-            candidate.status = 'ready';
-            validAgent = candidate;
-          } else {
-            console.log(`Agent ${i + 1} failed validation (score: ${validation?.score || 0}), regenerating...`);
-            onAgentUpdate({ 
-              ...placeholderAgent, 
-              status: 'generating', 
-              generationAttempts: attempts,
-            });
-            await new Promise(r => setTimeout(r, 1500));
           }
+          
+          // Generate stance and accept agent regardless of validation score
+          candidate.initialStance = await generateStance(candidate, briefText);
+          candidate.status = 'ready';
+          validAgent = candidate;
         }
 
         if (validAgent) {
