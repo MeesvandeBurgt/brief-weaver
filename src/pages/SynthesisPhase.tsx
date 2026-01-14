@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useConversations } from '@/hooks/useConversations';
 import { FrameCard } from '@/components/synthesis/FrameCard';
+import { ThinkingBox } from '@/components/synthesis/ThinkingBox';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Frame } from '@/types';
-import { Lightbulb, Download, RefreshCw, ArrowLeft, Copy, Check, FileText } from 'lucide-react';
+import { Lightbulb, Download, RefreshCw, ArrowLeft, Copy, Check, FileText, LayoutGrid, Box } from 'lucide-react';
 import { toast } from 'sonner';
 import { jsPDF } from 'jspdf';
 
@@ -16,6 +17,7 @@ export function SynthesisPhase() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [viewMode, setViewMode] = useState<'box' | 'cards'>('box');
 
   useEffect(() => {
     if (!hasGenerated && state.conversations.length > 0) {
@@ -215,11 +217,47 @@ export function SynthesisPhase() {
       {/* Frames Grid */}
       {!isGenerating && localFrames.length > 0 && (
         <>
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {localFrames.map((frame, index) => (
-              <FrameCard key={frame.id} frame={frame} index={index} />
-            ))}
+          {/* View Toggle */}
+          <div className="flex justify-center gap-2 mb-6">
+            <Button
+              variant={viewMode === 'box' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('box')}
+            >
+              <Box className="w-4 h-4 mr-2" />
+              Think Outside the Box
+            </Button>
+            <Button
+              variant={viewMode === 'cards' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('cards')}
+            >
+              <LayoutGrid className="w-4 h-4 mr-2" />
+              Card View
+            </Button>
           </div>
+
+          {/* Interactive Box View */}
+          {viewMode === 'box' && (
+            <div className="card-editorial mb-8 overflow-hidden">
+              <ThinkingBox
+                frames={localFrames}
+                briefSummary={state.brief?.content.slice(0, 200) || ''}
+                onFrameSelect={(frame) => {
+                  // Frame selection is handled inside ThinkingBox
+                }}
+              />
+            </div>
+          )}
+
+          {/* Traditional Card View */}
+          {viewMode === 'cards' && (
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              {localFrames.map((frame, index) => (
+                <FrameCard key={frame.id} frame={frame} index={index} />
+              ))}
+            </div>
+          )}
 
           {/* Summary Stats */}
           <div className="card-editorial p-6 mb-8">
