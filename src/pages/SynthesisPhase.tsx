@@ -5,8 +5,9 @@ import { FrameCard } from '@/components/synthesis/FrameCard';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Frame } from '@/types';
-import { Lightbulb, Download, RefreshCw, ArrowLeft, Copy, Check } from 'lucide-react';
+import { Lightbulb, Download, RefreshCw, ArrowLeft, Copy, Check, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { jsPDF } from 'jspdf';
 
 export function SynthesisPhase() {
   const { state, dispatch } = useApp();
@@ -75,6 +76,100 @@ export function SynthesisPhase() {
     URL.revokeObjectURL(url);
     
     toast.success('Analysis exported successfully');
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const maxWidth = pageWidth - margin * 2;
+    let y = 20;
+
+    const addText = (text: string, fontSize: number, isBold = false, color: [number, number, number] = [0, 0, 0]) => {
+      doc.setFontSize(fontSize);
+      doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+      doc.setTextColor(...color);
+      const lines = doc.splitTextToSize(text, maxWidth);
+      
+      for (const line of lines) {
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.text(line, margin, y);
+        y += fontSize * 0.5;
+      }
+      y += 4;
+    };
+
+    const addSection = (title: string) => {
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
+      y += 8;
+      addText(title, 14, true, [59, 130, 246]);
+      y += 2;
+    };
+
+    // Title
+    addText('Critical Design Brief Analysis', 20, true);
+    addText(`Generated: ${new Date().toLocaleDateString()}`, 10, false, [128, 128, 128]);
+    y += 10;
+
+    // Brief Summary
+    if (state.brief) {
+      addSection('Design Brief');
+      const briefPreview = state.brief.content.slice(0, 500) + (state.brief.content.length > 500 ? '...' : '');
+      addText(briefPreview, 10);
+    }
+
+    // Expert Agents
+    addSection('Expert Agents');
+    state.agents.forEach((agent, i) => {
+      addText(`${i + 1}. ${agent.name}`, 11, true);
+      addText(`${agent.title} | ${agent.domain}`, 9, false, [100, 100, 100]);
+      addText(`Framework: ${agent.theoreticalFramework}`, 9);
+      if (agent.isWildcard) {
+        addText('(Wildcard Expert)', 9, false, [234, 179, 8]);
+      }
+      y += 4;
+    });
+
+    // Conversation Summaries
+    addSection('Dialogue Summaries');
+    state.conversations.forEach((conv, i) => {
+      const agent1 = state.agents.find(a => a.id === conv.agent1Id);
+      const agent2 = state.agents.find(a => a.id === conv.agent2Id);
+      addText(`Dialogue ${i + 1}: ${agent1?.name?.split(' ').pop()} × ${agent2?.name?.split(' ').pop()}`, 11, true);
+      if (conv.summary) {
+        addText(conv.summary.slice(0, 400) + (conv.summary.length > 400 ? '...' : ''), 9);
+      }
+      y += 4;
+    });
+
+    // Alternative Frames
+    addSection('Alternative Problem Frames');
+    localFrames.forEach((frame, i) => {
+      addText(`Frame ${i + 1}: ${frame.title}`, 12, true);
+      addText(frame.coreNarrative, 10);
+      addText(`Reveals: ${frame.makesVisible}`, 9, false, [80, 80, 80]);
+      addText(`Historical Grounding: ${frame.historicalGrounding}`, 9, false, [80, 80, 80]);
+      addText(`Design Implications: ${frame.designImplications}`, 9, false, [80, 80, 80]);
+      y += 6;
+    });
+
+    // Footer
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(`Brief Weaver Analysis | Page ${i} of ${pageCount}`, margin, 290);
+    }
+
+    doc.save(`critical-analysis-${Date.now()}.pdf`);
+    toast.success('PDF exported successfully');
   };
 
   const handleCopyFrames = async () => {
@@ -159,9 +254,13 @@ export function SynthesisPhase() {
               {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
               {copied ? 'Copied!' : 'Copy Frames'}
             </Button>
+            <Button variant="outline" onClick={handleExportPDF}>
+              <FileText className="w-4 h-4 mr-2" />
+              Export PDF
+            </Button>
             <Button variant="outline" onClick={handleExport}>
               <Download className="w-4 h-4 mr-2" />
-              Export Full Analysis
+              Export JSON
             </Button>
             <Button onClick={handleRestart}>
               <RefreshCw className="w-4 h-4 mr-2" />
