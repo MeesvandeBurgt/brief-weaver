@@ -33,12 +33,13 @@ export function GenerationPhase() {
             }
             return [...prev, agent];
           });
-        }
+        },
+        state.includeWildcard
       ).then((agents) => {
         dispatch({ type: 'SET_AGENTS', agents });
       }).catch(console.error);
     }
-  }, [hasStarted, state.brief, state.agentCount, generateAgents, dispatch]);
+  }, [hasStarted, state.brief, state.agentCount, state.includeWildcard, generateAgents, dispatch]);
 
   const handleBack = () => {
     dispatch({ type: 'SET_PHASE', phase: 'input' });

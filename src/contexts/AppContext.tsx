@@ -5,6 +5,7 @@ type AppAction =
   | { type: 'SET_PHASE'; phase: AppPhase }
   | { type: 'SET_BRIEF'; brief: Brief }
   | { type: 'SET_AGENT_COUNT'; count: number }
+  | { type: 'SET_INCLUDE_WILDCARD'; include: boolean }
   | { type: 'ADD_AGENT'; agent: Agent }
   | { type: 'UPDATE_AGENT'; id: string; updates: Partial<Agent> }
   | { type: 'SET_AGENTS'; agents: Agent[] }
@@ -21,6 +22,7 @@ const initialState: AppState = {
   phase: 'input',
   brief: null,
   agentCount: 3,
+  includeWildcard: false,
   agents: [],
   conversations: [],
   frames: [],
@@ -36,6 +38,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, brief: action.brief };
     case 'SET_AGENT_COUNT':
       return { ...state, agentCount: action.count };
+    case 'SET_INCLUDE_WILDCARD':
+      return { ...state, includeWildcard: action.include };
     case 'ADD_AGENT':
       return { ...state, agents: [...state.agents, action.agent] };
     case 'UPDATE_AGENT':

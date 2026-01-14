@@ -4,8 +4,9 @@ import { TextInput } from '@/components/brief-input/TextInput';
 import { FileUploader } from '@/components/brief-input/FileUploader';
 import { AgentCountSelector } from '@/components/brief-input/AgentCountSelector';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowRight, FileText, Type, Sparkles } from 'lucide-react';
+import { ArrowRight, FileText, Type, Sparkles, Shuffle } from 'lucide-react';
 
 export function InputPhase() {
   const { state, dispatch } = useApp();
@@ -100,6 +101,34 @@ export function InputPhase() {
           value={state.agentCount} 
           onChange={(count) => dispatch({ type: 'SET_AGENT_COUNT', count })}
         />
+
+        {/* Wildcard Toggle */}
+        <div className="mt-6 pt-6 border-t border-border">
+          <div className="flex items-start gap-4">
+            <div className="flex items-center gap-3">
+              <Switch
+                id="wildcard-toggle"
+                checked={state.includeWildcard}
+                onCheckedChange={(checked) => dispatch({ type: 'SET_INCLUDE_WILDCARD', include: checked })}
+              />
+              <div className="flex items-center gap-2">
+                <Shuffle className="w-4 h-4 text-accent" />
+                <label htmlFor="wildcard-toggle" className="font-medium text-foreground cursor-pointer">
+                  Include Wildcard Expert
+                </label>
+              </div>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground mt-2 ml-12">
+            Add one expert from an unexpected domain who can offer surprising perspectives. 
+            They'll have a concrete bridge connecting their expertise to your brief.
+          </p>
+          {state.includeWildcard && (
+            <p className="text-xs text-accent mt-2 ml-12">
+              One of your {state.agentCount} experts will be a wildcard.
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Submit Button */}

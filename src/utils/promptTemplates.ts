@@ -1,14 +1,19 @@
-export const AGENT_GENERATION_PROMPT = (briefText: string) => `You are creating a domain expert persona for analyzing design briefs from a distinctive intellectual perspective.
+export const AGENT_GENERATION_PROMPT = (briefText: string) => `You are creating a domain expert persona who would PLAUSIBLY BE CONSULTED on this design brief.
 
 Given this design brief:
 """
 ${briefText}
 """
 
-Generate a domain expert persona with these characteristics:
-1. Domain expertise clearly tied to themes in the brief
-2. Historical knowledge of their domain spanning decades or centuries
-3. A coherent worldview or theoretical framework from ANY part of the intellectual spectrum. Examples include (but are not limited to):
+Generate a domain expert persona with these MANDATORY requirements:
+
+1. DOMAIN PROXIMITY: The expert's field must be directly relevant to the brief's subject matter. Ask: "Would a project team realistically invite this person to consult on this brief?" If not, choose a different domain.
+
+2. BRIEF GROUNDING: Identify exactly 3 verbatim snippets from the brief that this expert will interrogate. These must be EXACT QUOTES from the brief text.
+
+3. CONSULTATION RATIONALE: Explain in 1-2 sentences why this expert would be consulted for this specific brief.
+
+4. CRITICAL LENS: Apply a coherent worldview from ANY part of the intellectual spectrum. Diversity comes from the LENS, not random domains. Examples:
    - Progressive: feminist, post-colonial, Marxist, critical race theory, disability studies
    - Conservative: traditionalist, Burkean, religious orthodox, cultural conservative
    - Libertarian: Austrian economics, classical liberal, anarcho-capitalist
@@ -19,24 +24,97 @@ Generate a domain expert persona with these characteristics:
    - Techno-optimist: transhumanist, accelerationist, effective altruist
    - Pragmatist: engineering-focused, evidence-based policy, design thinking
    - Skeptical: contrarian, heterodox, anti-establishment (from any direction)
-4. Specific thinkers, movements, or historical precedents they reference
-5. A distinctive voice and argumentation style
 
-IMPORTANT: Be genuinely pluralist. Do not default to progressive/left-academic perspectives. The goal is diversity of thought.
+5. Specific thinkers, movements, or historical precedents they reference
+6. A distinctive voice and argumentation style
+
+IMPORTANT: Be genuinely pluralist in your critical lens. Do not default to progressive/left-academic perspectives.
 
 You MUST respond with ONLY valid JSON in this exact format (no additional text):
 {
   "name": "Dr. [Full Name]",
   "title": "[Academic/Professional Title]",
-  "domain": "[Specific domain of expertise]",
+  "domain": "[Specific domain of expertise - must be relevant to brief]",
+  "theoreticalFramework": "[Critical lens/framework name]",
+  "historicalFocus": "[Time period or movement]",
+  "keyReferences": ["Thinker 1", "Thinker 2", "Historical Event/Movement"],
+  "stanceKeywords": ["keyword1", "keyword2", "keyword3"],
+  "criticalPerspective": "[2-3 sentence summary of their anticipated critique approach]",
+  "briefSnippets": ["exact quote 1 from brief", "exact quote 2 from brief", "exact quote 3 from brief"],
+  "consultationRationale": "[1-2 sentences explaining why this expert would be consulted for this brief]"
+}`;
+
+export const AGENT_VALIDATION_PROMPT = (agent: {
+  name: string;
+  title: string;
+  domain: string;
+  theoreticalFramework: string;
+  briefSnippets: string[];
+  consultationRationale: string;
+}, briefText: string) => `You are a relevance validator. Assess whether this expert persona is appropriate for analyzing the given design brief.
+
+Design Brief:
+"""
+${briefText}
+"""
+
+Expert Persona:
+- Name: ${agent.name}
+- Title: ${agent.title}
+- Domain: ${agent.domain}
+- Framework: ${agent.theoreticalFramework}
+- Consultation Rationale: ${agent.consultationRationale}
+- Brief Snippets to Interrogate: ${agent.briefSnippets.map(s => `"${s}"`).join(', ')}
+
+Evaluate on these criteria:
+1. DOMAIN PROXIMITY (0-1): Would this expert plausibly be consulted for this brief?
+2. SNIPPET VALIDITY (0-1): Are the snippets actual quotes from the brief?
+3. RATIONALE COHERENCE (0-1): Does the consultation rationale make sense?
+4. CRITICAL VALUE (0-2): Will this perspective surface non-obvious insights about the brief?
+
+You MUST respond with ONLY valid JSON:
+{
+  "relevanceScore": [1-5 total score],
+  "relevanceRationale": "[2-3 sentence explanation of score]",
+  "domainProximity": [0 or 1],
+  "snippetValidity": [0 or 1],
+  "rationaleCoherence": [0 or 1],
+  "criticalValue": [0, 1, or 2]
+}
+
+A score of 3 or higher means the expert should proceed. Below 3 means regenerate.`;
+
+export const WILDCARD_AGENT_PROMPT = (briefText: string, existingAgents: Array<{name: string; domain: string; theoreticalFramework: string}>) => `You are creating a WILDCARD expert persona—someone from an unexpected domain who can offer a surprising but valuable perspective on this design brief.
+
+Given this design brief:
+"""
+${briefText}
+"""
+
+Existing experts already cover these perspectives:
+${existingAgents.map(a => `- ${a.name}: ${a.domain}, ${a.theoreticalFramework}`).join('\n')}
+
+Create a wildcard expert who:
+1. Comes from a domain NOT obviously related to the brief
+2. Has a CONCRETE BRIDGE to the brief—a specific, defensible reason their expertise applies
+3. Will surface insights that domain-proximate experts would miss
+4. Brings historical depth and intellectual rigor despite the unconventional angle
+
+The wildcard must NOT be random—they need a compelling "bridge" explaining why their perspective matters for this specific brief.
+
+You MUST respond with ONLY valid JSON:
+{
+  "name": "Dr. [Full Name]",
+  "title": "[Academic/Professional Title]",
+  "domain": "[Unexpected but bridgeable domain]",
   "theoreticalFramework": "[Framework name]",
   "historicalFocus": "[Time period or movement]",
   "keyReferences": ["Thinker 1", "Thinker 2", "Historical Event/Movement"],
   "stanceKeywords": ["keyword1", "keyword2", "keyword3"],
-  "criticalPerspective": "[2-3 sentence summary of their anticipated critique approach]"
-}
-
-The persona should offer a distinctive angle on the brief's assumptions, not solve the design problem. Be creative and specific.`;
+  "criticalPerspective": "[2-3 sentence summary of their anticipated critique approach]",
+  "briefSnippets": ["exact quote 1 from brief", "exact quote 2 from brief", "exact quote 3 from brief"],
+  "wildcardBridge": "[2-3 sentences explaining the concrete connection between their unexpected domain and this brief]"
+}`;
 
 export const AGENT_STANCE_PROMPT = (agent: {
   name: string;

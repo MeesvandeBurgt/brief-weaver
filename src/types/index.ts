@@ -23,6 +23,13 @@ export interface Agent {
   colorIndex: number;
   status: 'generating' | 'validating' | 'ready' | 'error';
   generationAttempts: number;
+  // Domain proximity fields
+  briefSnippets: string[];           // 3 exact quotes from brief this expert will interrogate
+  consultationRationale: string;     // Why this expert would plausibly be consulted
+  relevanceScore?: number;           // 1-5 score from validation (must be >= 3)
+  relevanceRationale?: string;       // Explanation of relevance score
+  isWildcard?: boolean;              // True if this is an optional wildcard expert
+  wildcardBridge?: string;           // For wildcards: concrete connection to brief
 }
 
 // Conversation Types
@@ -66,6 +73,7 @@ export interface AppState {
   phase: AppPhase;
   brief: Brief | null;
   agentCount: number;
+  includeWildcard: boolean;
   agents: Agent[];
   conversations: Conversation[];
   frames: Frame[];

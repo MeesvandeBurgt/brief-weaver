@@ -1,7 +1,12 @@
 import { Agent } from '@/types';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
-import { Check, AlertCircle, RefreshCw, User } from 'lucide-react';
+import { Check, AlertCircle, RefreshCw, User, Shuffle, Quote } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface AgentCardProps {
   agent: Agent;
@@ -51,6 +56,12 @@ export function AgentCard({ agent, showStance = false }: AgentCardProps) {
           {agent.status === 'ready' && (
             <div className="mt-3 space-y-2">
               <div className="flex flex-wrap gap-2">
+                {agent.isWildcard && (
+                  <span className="px-2 py-0.5 bg-warning/20 text-warning text-xs rounded-full font-medium flex items-center gap-1">
+                    <Shuffle className="w-3 h-3" />
+                    Wildcard
+                  </span>
+                )}
                 <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full font-medium">
                   {agent.domain}
                 </span>
@@ -62,6 +73,33 @@ export function AgentCard({ agent, showStance = false }: AgentCardProps) {
               <p className="text-sm text-muted-foreground line-clamp-2">
                 {agent.criticalPerspective}
               </p>
+
+              {/* Brief Snippets */}
+              {agent.briefSnippets && agent.briefSnippets.length > 0 && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-help">
+                      <Quote className="w-3 h-3" />
+                      <span>{agent.briefSnippets.length} brief excerpts to interrogate</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-sm">
+                    <p className="font-medium mb-2">Will interrogate:</p>
+                    <ul className="space-y-1 text-xs">
+                      {agent.briefSnippets.map((snippet, i) => (
+                        <li key={i} className="italic">&ldquo;{snippet.slice(0, 80)}{snippet.length > 80 ? '...' : ''}&rdquo;</li>
+                      ))}
+                    </ul>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+
+              {/* Wildcard Bridge */}
+              {agent.isWildcard && agent.wildcardBridge && (
+                <p className="text-xs text-warning/80 italic">
+                  Bridge: {agent.wildcardBridge.slice(0, 100)}{agent.wildcardBridge.length > 100 ? '...' : ''}
+                </p>
+              )}
 
               {agent.keyReferences && agent.keyReferences.length > 0 && (
                 <p className="text-xs text-muted-foreground">
