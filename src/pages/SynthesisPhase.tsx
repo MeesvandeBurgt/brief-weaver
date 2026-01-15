@@ -15,22 +15,22 @@ export function SynthesisPhase() {
   const { synthesizeFrames } = useConversations();
   const [localFrames, setLocalFrames] = useState<Frame[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [hasGenerated, setHasGenerated] = useState(false);
   const [copied, setCopied] = useState(false);
   const [viewMode, setViewMode] = useState<'box' | 'cards'>('box');
 
-  // Load frames from persisted state if they exist
+  // Load frames from persisted state OR generate new ones
   useEffect(() => {
-    if (state.frames && state.frames.length > 0 && localFrames.length === 0) {
+    // Already have local frames, do nothing
+    if (localFrames.length > 0) return;
+    
+    // Load from persisted state if available
+    if (state.frames && state.frames.length > 0) {
       setLocalFrames(state.frames);
-      setHasGenerated(true);
+      return;
     }
-  }, [state.frames]);
-
-  // Generate frames if we have conversations but no frames yet
-  useEffect(() => {
-    if (!hasGenerated && state.conversations.length > 0 && localFrames.length === 0) {
-      setHasGenerated(true);
+    
+    // Generate new frames if we have conversations
+    if (state.conversations.length > 0 && !isGenerating) {
       setIsGenerating(true);
 
       synthesizeFrames(state.conversations)
@@ -46,7 +46,7 @@ export function SynthesisPhase() {
           setIsGenerating(false);
         });
     }
-  }, [hasGenerated, state.conversations, localFrames.length, synthesizeFrames, dispatch]);
+  }, [state.frames, state.conversations, localFrames.length, isGenerating, synthesizeFrames, dispatch]);
 
   const handleRestart = () => {
     dispatch({ type: 'RESET' });
@@ -223,6 +223,35 @@ export function SynthesisPhase() {
         </div>
       )}
 
+      {/* Empty State - No conversations */}
+      {!isGenerating && localFrames.length === 0 && state.conversations.length === 0 && (
+        <div className="card-editorial p-12 text-center mb-8">
+          <h3 className="font-serif font-semibold text-xl text-foreground mb-2">
+            No Conversations Yet
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            Complete the expert dialogues first to generate synthesis frames.
+          </p>
+          <Button onClick={handleBack}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Go to Dialogues
+          </Button>
+        </div>
+      )}
+
+      {/* Empty State - Has conversations but no frames yet */}
+      {!isGenerating && localFrames.length === 0 && state.conversations.length > 0 && (
+        <div className="card-editorial p-12 text-center mb-8">
+          <h3 className="font-serif font-semibold text-xl text-foreground mb-2">
+            Ready to Synthesize
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            {state.conversations.length} conversation(s) ready. Generating frames...
+          </p>
+          <LoadingSpinner size="md" className="mx-auto" />
+        </div>
+      )}
+
       {/* Frames Grid */}
       {!isGenerating && localFrames.length > 0 && (
         <>
@@ -252,6 +281,7 @@ export function SynthesisPhase() {
               <ThinkingBox
                 frames={localFrames}
                 briefSummary={state.brief?.content.slice(0, 200) || ''}
+                conversations={state.conversations}
                 onFrameSelect={(frame) => {
                   // Frame selection is handled inside ThinkingBox
                 }}

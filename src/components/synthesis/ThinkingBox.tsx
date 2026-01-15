@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Frame } from '@/types';
+import { Frame, Conversation } from '@/types';
 import { cn } from '@/lib/utils';
 import { RotateCcw, Sparkles, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ interface PestelInsight {
 interface ThinkingBoxProps {
   frames: Frame[];
   briefSummary: string;
+  conversations?: Conversation[];
   pestelInsights?: PestelInsight[];
   onFrameSelect: (frame: Frame) => void;
 }
@@ -23,7 +24,7 @@ const extractDiscussionStarters = (frames: Frame[]): string[] => {
   
   // First, try to get explicit discussion questions
   frames.forEach(frame => {
-    if (frame.discussionQuestions && frame.discussionQuestions.length > 0) {
+    if (frame.discussionQuestions && Array.isArray(frame.discussionQuestions) && frame.discussionQuestions.length > 0) {
       questions.push(...frame.discussionQuestions);
     }
   });
@@ -31,51 +32,98 @@ const extractDiscussionStarters = (frames: Frame[]): string[] => {
   // If no explicit questions, generate provocative ones from frame content
   if (questions.length === 0 && frames.length > 0) {
     frames.forEach(frame => {
+      // Create questions from frame titles
+      if (frame.title) {
+        questions.push(`What does the "${frame.title}" perspective reveal?`);
+      }
       // Create a question from "makesVisible" field
       if (frame.makesVisible) {
-        questions.push(`What if we centered ${frame.makesVisible.toLowerCase().slice(0, 50)}...?`);
-      }
-      // Create a question from design implications
-      if (frame.designImplications) {
-        questions.push(`How might we ${frame.designImplications.toLowerCase().slice(0, 50)}...?`);
+        const visible = frame.makesVisible.toLowerCase();
+        if (visible.length > 20) {
+          questions.push(`How might we address: ${visible.slice(0, 60)}...?`);
+        }
       }
     });
   }
   
-  // Fallback default questions if still empty
+  // Final fallback
   if (questions.length === 0) {
     return [
       'Who benefits most from how this problem is currently framed?',
       'What assumptions are we not questioning?',
       'Whose voices are missing from this conversation?',
       'What would a radically different approach look like?',
-      'What historical patterns does this repeat?',
-      'What are the unintended consequences we might be ignoring?',
     ];
   }
   
-  // Return a subset to avoid crowding
+  // Return a subset to avoid crowding, max 6
   return questions.slice(0, 6);
 };
 
-// Default PESTEL insights if none provided
-const defaultPestelInsights: PestelInsight[] = [
-  { dimension: 'Political', insight: 'Power structures embedded in the brief', color: 'from-red-500 to-red-600' },
-  { dimension: 'Economic', insight: 'Value extraction & distribution patterns', color: 'from-amber-500 to-amber-600' },
-  { dimension: 'Social', insight: 'Community impacts & cultural assumptions', color: 'from-emerald-500 to-emerald-600' },
-  { dimension: 'Technological', insight: 'Infrastructure dependencies & digital divides', color: 'from-blue-500 to-blue-600' },
-  { dimension: 'Environmental', insight: 'Material footprint & sustainability gaps', color: 'from-green-500 to-green-600' },
-  { dimension: 'Legal', insight: 'Rights, ownership & regulatory blind spots', color: 'from-violet-500 to-violet-600' },
-];
+// Extract key insights from frames for the PESTEL cube faces
+const extractPestelFromFrames = (frames: Frame[], conversations?: Conversation[]): PestelInsight[] => {
+  const insights: PestelInsight[] = [];
+  const colors = [
+    'from-red-500 to-red-600',
+    'from-amber-500 to-amber-600', 
+    'from-emerald-500 to-emerald-600',
+    'from-blue-500 to-blue-600',
+    'from-green-600 to-green-700',
+    'from-violet-500 to-violet-600',
+  ];
+  
+  // Extract key themes from frames
+  if (frames.length > 0) {
+    // Use frame titles and core insights as the cube face content
+    const dimensions = ['Reframe', 'Reveal', 'Question', 'Rethink', 'Uncover', 'Challenge'];
+    
+    frames.slice(0, 6).forEach((frame, i) => {
+      const shortInsight = frame.makesVisible 
+        ? frame.makesVisible.slice(0, 60) + (frame.makesVisible.length > 60 ? '...' : '')
+        : frame.coreNarrative.slice(0, 60) + '...';
+      
+      insights.push({
+        dimension: dimensions[i] || frame.title.split(' ')[0],
+        insight: shortInsight,
+        color: colors[i % colors.length],
+      });
+    });
+    
+    // Fill remaining faces if needed
+    while (insights.length < 6) {
+      const idx = insights.length;
+      insights.push({
+        dimension: ['Power', 'Value', 'Access', 'Impact', 'Rights', 'Context'][idx],
+        insight: conversations?.[idx]?.summary?.slice(0, 50) + '...' || 'Explore this dimension',
+        color: colors[idx % colors.length],
+      });
+    }
+  }
+  
+  // Fallback to defaults if no frames
+  if (insights.length === 0) {
+    return [
+      { dimension: 'Political', insight: 'Power structures embedded in the brief', color: colors[0] },
+      { dimension: 'Economic', insight: 'Value extraction & distribution patterns', color: colors[1] },
+      { dimension: 'Social', insight: 'Community impacts & cultural assumptions', color: colors[2] },
+      { dimension: 'Technological', insight: 'Infrastructure dependencies & digital divides', color: colors[3] },
+      { dimension: 'Environmental', insight: 'Material footprint & sustainability gaps', color: colors[4] },
+      { dimension: 'Legal', insight: 'Rights, ownership & regulatory blind spots', color: colors[5] },
+    ];
+  }
+  
+  return insights.slice(0, 6);
+};
 
-export function ThinkingBox({ frames, briefSummary, pestelInsights, onFrameSelect }: ThinkingBoxProps) {
+export function ThinkingBox({ frames, briefSummary, conversations, pestelInsights, onFrameSelect }: ThinkingBoxProps) {
   const [rotateX, setRotateX] = useState(-15);
   const [rotateY, setRotateY] = useState(-25);
   const [isDragging, setIsDragging] = useState(false);
   const [autoRotate, setAutoRotate] = useState(true);
   const lastPos = useRef({ x: 0, y: 0 });
 
-  const insights = pestelInsights || defaultPestelInsights;
+  // Extract insights from actual frames and conversations
+  const insights = pestelInsights || extractPestelFromFrames(frames, conversations);
   const discussionStarters = extractDiscussionStarters(frames);
 
   // Auto-rotate effect
@@ -244,7 +292,7 @@ export function ThinkingBox({ frames, briefSummary, pestelInsights, onFrameSelec
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center">
         <p className="text-sm text-muted-foreground flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-accent" />
-          Drag to explore PESTEL dimensions • Questions spark further inquiry
+          Drag to reflect on insights • Use questions to guide team discussion
         </p>
       </div>
     </div>
