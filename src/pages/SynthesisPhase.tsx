@@ -19,8 +19,17 @@ export function SynthesisPhase() {
   const [copied, setCopied] = useState(false);
   const [viewMode, setViewMode] = useState<'box' | 'cards'>('box');
 
+  // Load frames from persisted state if they exist
   useEffect(() => {
-    if (!hasGenerated && state.conversations.length > 0) {
+    if (state.frames && state.frames.length > 0 && localFrames.length === 0) {
+      setLocalFrames(state.frames);
+      setHasGenerated(true);
+    }
+  }, [state.frames]);
+
+  // Generate frames if we have conversations but no frames yet
+  useEffect(() => {
+    if (!hasGenerated && state.conversations.length > 0 && localFrames.length === 0) {
       setHasGenerated(true);
       setIsGenerating(true);
 
@@ -37,7 +46,7 @@ export function SynthesisPhase() {
           setIsGenerating(false);
         });
     }
-  }, [hasGenerated, state.conversations, synthesizeFrames, dispatch]);
+  }, [hasGenerated, state.conversations, localFrames.length, synthesizeFrames, dispatch]);
 
   const handleRestart = () => {
     dispatch({ type: 'RESET' });

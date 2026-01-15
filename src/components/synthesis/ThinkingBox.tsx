@@ -17,14 +17,43 @@ interface ThinkingBoxProps {
   onFrameSelect: (frame: Frame) => void;
 }
 
-// Extract discussion questions from all frames
+// Extract discussion questions from all frames, or generate defaults from frame content
 const extractDiscussionStarters = (frames: Frame[]): string[] => {
   const questions: string[] = [];
+  
+  // First, try to get explicit discussion questions
   frames.forEach(frame => {
-    if (frame.discussionQuestions) {
+    if (frame.discussionQuestions && frame.discussionQuestions.length > 0) {
       questions.push(...frame.discussionQuestions);
     }
   });
+  
+  // If no explicit questions, generate provocative ones from frame content
+  if (questions.length === 0 && frames.length > 0) {
+    frames.forEach(frame => {
+      // Create a question from "makesVisible" field
+      if (frame.makesVisible) {
+        questions.push(`What if we centered ${frame.makesVisible.toLowerCase().slice(0, 50)}...?`);
+      }
+      // Create a question from design implications
+      if (frame.designImplications) {
+        questions.push(`How might we ${frame.designImplications.toLowerCase().slice(0, 50)}...?`);
+      }
+    });
+  }
+  
+  // Fallback default questions if still empty
+  if (questions.length === 0) {
+    return [
+      'Who benefits most from how this problem is currently framed?',
+      'What assumptions are we not questioning?',
+      'Whose voices are missing from this conversation?',
+      'What would a radically different approach look like?',
+      'What historical patterns does this repeat?',
+      'What are the unintended consequences we might be ignoring?',
+    ];
+  }
+  
   // Return a subset to avoid crowding
   return questions.slice(0, 6);
 };
