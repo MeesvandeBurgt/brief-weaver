@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { AppState, AppPhase, Brief, Agent, Conversation, Frame, Message } from '@/types';
+
+const STORAGE_KEY = 'brief-weaver-state';
 
 type AppAction =
   | { type: 'SET_PHASE'; phase: AppPhase }
@@ -16,6 +18,7 @@ type AppAction =
   | { type: 'SET_FRAMES'; frames: Frame[] }
   | { type: 'SET_ERROR'; error: string | null }
   | { type: 'SET_PROCESSING'; isProcessing: boolean }
+  | { type: 'LOAD_STATE'; state: AppState }
   | { type: 'RESET' };
 
 const initialState: AppState = {
@@ -29,6 +32,32 @@ const initialState: AppState = {
   error: null,
   isProcessing: false,
 };
+
+// Load state from localStorage
+function loadPersistedState(): AppState {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Reset processing state on load (in case app was closed during processing)
+      return { ...parsed, isProcessing: false, error: null };
+    }
+  } catch (e) {
+    console.warn('Failed to load persisted state:', e);
+  }
+  return initialState;
+}
+
+// Save state to localStorage
+function persistState(state: AppState) {
+  try {
+    // Don't persist error/processing states
+    const toPersist = { ...state, isProcessing: false, error: null };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toPersist));
+  } catch (e) {
+    console.warn('Failed to persist state:', e);
+  }
+}
 
 function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
@@ -77,6 +106,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, error: action.error };
     case 'SET_PROCESSING':
       return { ...state, isProcessing: action.isProcessing };
+    case 'LOAD_STATE':
+      return action.state;
     case 'RESET':
       return { ...initialState };
     default:
@@ -92,7 +123,12 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(appReducer, initialState);
+  const [state, dispatch] = useReducer(appReducer, initialState, loadPersistedState);
+
+  // Persist state to localStorage whenever it changes
+  useEffect(() => {
+    persistState(state);
+  }, [state]);
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>
