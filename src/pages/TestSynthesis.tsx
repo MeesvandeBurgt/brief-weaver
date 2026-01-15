@@ -1,4 +1,4 @@
-import { useState } from 'react';
+dimport { useState } from 'react';
 import { ThinkingBox } from '@/components/synthesis/ThinkingBox';
 import { FrameCard } from '@/components/synthesis/FrameCard';
 import { Frame } from '@/types';

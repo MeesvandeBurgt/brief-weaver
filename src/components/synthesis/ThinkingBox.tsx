@@ -81,21 +81,22 @@ export function ThinkingBox({ frames, briefSummary, pestelInsights, onFrameSelec
     setIsDragging(false);
   };
 
-  // Position discussion starters around the box with lots of breathing room
+  // Position discussion starters around the box in a wide orbit - like clock positions
   const getStarterPosition = (index: number) => {
+    // 6 positions spread evenly around with generous clearance from box and edges
     const positions = [
-      { top: '-40%', left: '180%', rotate: 3 },
-      { top: '10%', left: '-120%', rotate: -5 },
-      { top: '90%', left: '185%', rotate: 4 },
-      { top: '130%', left: '-110%', rotate: -3 },
-      { top: '-45%', left: '-115%', rotate: -4 },
-      { top: '140%', left: '60%', rotate: 2 },
+      { top: '-80%', left: '50%', rotate: 2 },      // 12 o'clock - top center
+      { top: '-40%', left: '220%', rotate: 4 },     // 2 o'clock - top right
+      { top: '60%', left: '220%', rotate: -3 },     // 4 o'clock - middle right  
+      { top: '120%', left: '50%', rotate: -2 },     // 6 o'clock - bottom center
+      { top: '60%', left: '-170%', rotate: 3 },     // 8 o'clock - middle left
+      { top: '-40%', left: '-170%', rotate: -4 },   // 10 o'clock - top left
     ];
     return positions[index % positions.length];
   };
 
   return (
-    <div className="relative w-full min-h-[850px] flex items-center justify-center py-24">
+    <div className="relative w-full min-h-[950px] flex items-center justify-center py-40">
       {/* Control buttons */}
       <div className="absolute top-4 right-4 z-20 flex gap-2">
         <Button
