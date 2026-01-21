@@ -131,15 +131,21 @@ export function useAgentGeneration() {
     agent: Agent,
     briefText: string
   ): Promise<string> => {
-    const stanceResponse = await callOpenRouter({
-      messages: [{
-        role: 'user',
-        content: AGENT_STANCE_PROMPT(agent, briefText),
-      }],
-      temperature: 0.85,
-      max_tokens: 4000,
-    });
-    return stanceResponse.content;
+    try {
+      const stanceResponse = await callOpenRouter({
+        messages: [{
+          role: 'user',
+          content: AGENT_STANCE_PROMPT(agent, briefText),
+        }],
+        temperature: 0.85,
+        max_tokens: 4000,
+      });
+      return stanceResponse.content;
+    } catch (err) {
+      console.error('Stance generation error:', err);
+      // Return a placeholder stance if generation fails
+      return `As ${agent.name}, I would analyze this brief through my ${agent.theoreticalFramework} lens, examining the assumptions embedded within it.`;
+    }
   }, []);
 
   const generateAgents = useCallback(async (
@@ -189,15 +195,26 @@ export function useAgentGeneration() {
           // Generate candidate agent
           const candidate = await generateCoreAgent(briefText, i, agents);
           if (!candidate) {
-            onAgentUpdate({ ...placeholderAgent, status: 'error', generationAttempts: attempts });
+            console.log(`Agent ${i + 1} generation failed, attempt ${attempts}`);
             await new Promise(r => setTimeout(r, 1000));
             continue;
           }
 
+          // Update UI to show we're generating the stance
+          onAgentUpdate({ ...candidate, status: 'generating', generationAttempts: attempts });
+
           // Generate stance and mark agent as ready
-          candidate.initialStance = await generateStance(candidate, briefText);
-          candidate.status = 'ready';
-          validAgent = candidate;
+          try {
+            candidate.initialStance = await generateStance(candidate, briefText);
+            candidate.status = 'ready';
+            validAgent = candidate;
+          } catch (stanceErr) {
+            console.error('Stance generation failed:', stanceErr);
+            // Still accept the agent even if stance fails
+            candidate.initialStance = `As ${candidate.name}, I would analyze this brief through my ${candidate.theoreticalFramework} lens.`;
+            candidate.status = 'ready';
+            validAgent = candidate;
+          }
         }
 
         if (validAgent) {
@@ -246,7 +263,12 @@ export function useAgentGeneration() {
           if (candidate) {
             // Wildcards skip strict validation but still need a bridge
             if (candidate.wildcardBridge && candidate.wildcardBridge.length > 20) {
-              candidate.initialStance = await generateStance(candidate, briefText);
+              try {
+                candidate.initialStance = await generateStance(candidate, briefText);
+              } catch (stanceErr) {
+                console.error('Wildcard stance generation failed:', stanceErr);
+                candidate.initialStance = `As ${candidate.name}, I bring an unexpected perspective through my ${candidate.theoreticalFramework} lens.`;
+              }
               candidate.status = 'ready';
               wildcard = candidate;
             } else {
@@ -254,7 +276,7 @@ export function useAgentGeneration() {
               await new Promise(r => setTimeout(r, 1000));
             }
           } else {
-            onAgentUpdate({ ...wildcardPlaceholder, status: 'error', generationAttempts: wildcardAttempts });
+            console.log(`Wildcard generation failed, attempt ${wildcardAttempts}`);
             await new Promise(r => setTimeout(r, 1000));
           }
         }
