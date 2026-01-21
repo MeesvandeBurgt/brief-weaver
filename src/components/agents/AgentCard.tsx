@@ -125,13 +125,6 @@ function StatusIndicator({ status, attempts }: { status: Agent['status']; attemp
           <span className="text-xs">Generating...</span>
         </div>
       );
-    case 'validating':
-      return (
-        <div className="flex items-center gap-2 text-info">
-          <LoadingSpinner size="sm" />
-          <span className="text-xs">Validating...</span>
-        </div>
-      );
     case 'ready':
       return (
         <div className="flex items-center gap-2 text-success">

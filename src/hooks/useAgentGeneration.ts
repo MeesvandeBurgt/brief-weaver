@@ -3,48 +3,13 @@ import { Agent } from '@/types';
 import { callOpenRouter } from '@/services/openrouter';
 import { 
   AGENT_GENERATION_PROMPT, 
-  AGENT_VALIDATION_PROMPT, 
   AGENT_STANCE_PROMPT,
   WILDCARD_AGENT_PROMPT 
 } from '@/utils/promptTemplates';
 
-const MIN_RELEVANCE_SCORE = 3;
-
 export function useAgentGeneration() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Validate agent relevance to brief
-  const validateAgent = useCallback(async (
-    agent: Partial<Agent>,
-    briefText: string
-  ): Promise<{ score: number; rationale: string } | null> => {
-    try {
-      const response = await callOpenRouter({
-        messages: [{
-          role: 'user',
-          content: AGENT_VALIDATION_PROMPT(
-            agent as { name: string; title: string; domain: string; theoreticalFramework: string; briefSnippets: string[]; consultationRationale: string },
-            briefText
-          ),
-        }],
-        temperature: 0.3,
-        max_tokens: 1000,
-      });
-
-      const jsonMatch = response.content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) return null;
-      
-      const data = JSON.parse(jsonMatch[0]);
-      return {
-        score: data.relevanceScore || 0,
-        rationale: data.relevanceRationale || '',
-      };
-    } catch (err) {
-      console.error('Validation error:', err);
-      return null;
-    }
-  }, []);
 
   // Generate a core (domain-proximate) agent
   const generateCoreAgent = useCallback(async (
@@ -91,7 +56,7 @@ export function useAgentGeneration() {
         consultationRationale: personaData.consultationRationale || '',
         initialStance: '',
         colorIndex,
-        status: 'validating',
+        status: 'generating',
         generationAttempts: 1,
         isWildcard: false,
       };
@@ -149,7 +114,7 @@ export function useAgentGeneration() {
         wildcardBridge: personaData.wildcardBridge || '',
         initialStance: '',
         colorIndex,
-        status: 'validating',
+        status: 'generating',
         generationAttempts: 1,
         isWildcard: true,
       };
@@ -229,18 +194,7 @@ export function useAgentGeneration() {
             continue;
           }
 
-          // Update UI to show validating
-          onAgentUpdate({ ...candidate, status: 'validating', generationAttempts: attempts });
-
-          // Validate relevance (informational only - always accept the agent)
-          const validation = await validateAgent(candidate, briefText);
-          
-          if (validation) {
-            candidate.relevanceScore = validation.score;
-            candidate.relevanceRationale = validation.rationale;
-          }
-          
-          // Generate stance and accept agent regardless of validation score
+          // Generate stance and mark agent as ready
           candidate.initialStance = await generateStance(candidate, briefText);
           candidate.status = 'ready';
           validAgent = candidate;
@@ -321,7 +275,7 @@ export function useAgentGeneration() {
     } finally {
       setIsGenerating(false);
     }
-  }, [generateCoreAgent, generateWildcardAgent, generateStance, validateAgent]);
+  }, [generateCoreAgent, generateWildcardAgent, generateStance]);
 
   return { generateAgents, isGenerating, error };
 }
