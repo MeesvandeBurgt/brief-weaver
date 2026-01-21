@@ -3,7 +3,7 @@ import { BookOpen, Users, MessageSquare, Lightbulb } from 'lucide-react';
 
 const phases = [
   { id: 'input', label: 'Brief Input', icon: BookOpen },
-  { id: 'generation', label: 'Expert Agents', icon: Users },
+  { id: 'generation', label: 'Agents', icon: Users },
   { id: 'conversation', label: 'Critical Dialogue', icon: MessageSquare },
   { id: 'synthesis', label: 'Synthesis', icon: Lightbulb },
 ] as const;

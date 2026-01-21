@@ -135,14 +135,14 @@ export function SynthesisPhase() {
       addText(briefPreview, 10);
     }
 
-    // Expert Agents
-    addSection('Expert Agents');
+    // Agents
+    addSection('Agents');
     state.agents.forEach((agent, i) => {
       addText(`${i + 1}. ${agent.name}`, 11, true);
       addText(`${agent.title} | ${agent.domain}`, 9, false, [100, 100, 100]);
       addText(`Framework: ${agent.theoreticalFramework}`, 9);
       if (agent.isWildcard) {
-        addText('(Wildcard Expert)', 9, false, [234, 179, 8]);
+        addText('(Wildcard Agent)', 9, false, [234, 179, 8]);
       }
       y += 4;
     });
@@ -230,7 +230,7 @@ export function SynthesisPhase() {
             No Conversations Yet
           </h3>
           <p className="text-muted-foreground mb-4">
-            Complete the expert dialogues first to generate synthesis frames.
+            Complete the agent dialogues first to generate synthesis frames.
           </p>
           <Button onClick={handleBack}>
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -306,7 +306,7 @@ export function SynthesisPhase() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div>
                 <p className="text-3xl font-serif font-bold text-primary">{state.agents.length}</p>
-                <p className="text-sm text-muted-foreground">Expert Agents</p>
+                <p className="text-sm text-muted-foreground">Agents</p>
               </div>
               <div>
                 <p className="text-3xl font-serif font-bold text-primary">{state.conversations.length}</p>

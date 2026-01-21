@@ -57,13 +57,13 @@ export function GenerationPhase() {
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
           <Users className="w-4 h-4" />
-          Phase 2: Expert Generation
+          Phase 2: Agent Generation
         </div>
         <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-3">
-          Assembling Critical Experts
+          Assembling Critical Agents
         </h1>
         <p className="text-muted-foreground max-w-xl mx-auto">
-          AI is generating domain experts with unique theoretical lenses to analyze your brief.
+          AI is generating agents with unique theoretical lenses to analyze your brief.
         </p>
       </div>
 
@@ -71,7 +71,7 @@ export function GenerationPhase() {
       <div className="card-editorial p-4 mb-8">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-foreground">
-            {isGenerating ? 'Generating experts...' : allReady ? 'All experts ready!' : 'Generation complete'}
+            {isGenerating ? 'Generating agents...' : allReady ? 'All agents ready!' : 'Generation complete'}
           </span>
           <span className="text-sm text-muted-foreground">
             {readyAgents} of {state.agentCount} ready

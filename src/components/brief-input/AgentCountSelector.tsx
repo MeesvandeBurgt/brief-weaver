@@ -16,7 +16,7 @@ export function AgentCountSelector({ value, onChange }: AgentCountSelectorProps)
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="font-medium text-foreground">Number of Expert Agents</h3>
+        <h3 className="font-medium text-foreground">Number of Agents</h3>
         <p className="text-sm text-muted-foreground">
           More agents = deeper analysis
         </p>

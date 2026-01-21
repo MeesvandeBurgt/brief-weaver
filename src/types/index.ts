@@ -24,11 +24,11 @@ export interface Agent {
   status: 'generating' | 'validating' | 'ready' | 'error';
   generationAttempts: number;
   // Domain proximity fields
-  briefSnippets: string[];           // 3 exact quotes from brief this expert will interrogate
-  consultationRationale: string;     // Why this expert would plausibly be consulted
+  briefSnippets: string[];           // 3 exact quotes from brief this agent will interrogate
+  consultationRationale: string;     // Why this agent would plausibly be consulted
   relevanceScore?: number;           // 1-5 score from validation (must be >= 3)
   relevanceRationale?: string;       // Explanation of relevance score
-  isWildcard?: boolean;              // True if this is an optional wildcard expert
+  isWildcard?: boolean;              // True if this is an optional wildcard agent
   wildcardBridge?: string;           // For wildcards: concrete connection to brief
 }
 

@@ -21,10 +21,10 @@ export function AgentCard({ agent, showStance = false }: AgentCardProps) {
 
   return (
     <div className={cn(
-      'card-editorial p-5 transition-all duration-300',
+      'card-editorial p-5 transition-all duration-300 overflow-hidden',
       agent.status === 'ready' && 'animate-fade-in'
     )}>
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-4 min-w-0">
         <div className={cn(
           'w-12 h-12 rounded-full flex items-center justify-center text-white shrink-0',
           colorClass
@@ -32,9 +32,9 @@ export function AgentCard({ agent, showStance = false }: AgentCardProps) {
           <User className="w-6 h-6" />
         </div>
         
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 overflow-hidden">
           <div className="flex items-start justify-between gap-2">
-            <div>
+            <div className="min-w-0 flex-1">
               <h3 className="font-serif font-semibold text-lg text-foreground truncate">
                 {agent.name || 'Generating...'}
               </h3>
@@ -65,7 +65,7 @@ export function AgentCard({ agent, showStance = false }: AgentCardProps) {
                 </span>
               </div>
               
-              <p className="text-sm text-muted-foreground line-clamp-2">
+              <p className="text-sm text-muted-foreground line-clamp-2 break-words">
                 {agent.criticalPerspective}
               </p>
 

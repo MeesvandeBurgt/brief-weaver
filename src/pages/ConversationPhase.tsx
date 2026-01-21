@@ -89,10 +89,10 @@ export function ConversationPhase() {
           Phase 3: Critical Dialogue
         </div>
         <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-3">
-          Experts in Discourse
+          Agents in Discourse
         </h1>
         <p className="text-muted-foreground max-w-xl mx-auto">
-          Watch as domain experts engage in critical dialogue, surfacing hidden narratives in your brief.
+          Watch as agents engage in critical dialogue, surfacing hidden narratives in your brief.
         </p>
       </div>
 

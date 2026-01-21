@@ -1,15 +1,15 @@
-export const AGENT_GENERATION_PROMPT = (briefText: string) => `You are creating a domain expert persona who brings a distinctive critical lens to design briefs.
+export const AGENT_GENERATION_PROMPT = (briefText: string) => `You are creating a domain agent persona who brings a distinctive critical lens to design briefs.
 
 Given this design brief:
 """
 ${briefText}
 """
 
-Generate a domain expert persona with these requirements:
+Generate a domain agent persona with these requirements:
 
-1. THEMATIC CONNECTION: The expert's field should connect to THEMES or TENSIONS in the brief, not its literal subject. For example, a brief about a parking app might attract a labor economist (gig economy), an urban theorist (car dependency), or a disability advocate (mobility justice)—not just a "parking expert."
+1. THEMATIC CONNECTION: The agent's field should connect to THEMES or TENSIONS in the brief, not its literal subject. For example, a brief about a parking app might attract a labor economist (gig economy), an urban theorist (car dependency), or a disability advocate (mobility justice)—not just a "parking agent."
 
-2. ANCHORING THEMES: Identify 3 broader themes, tensions, or assumptions in the brief that this expert would interrogate. These should be conceptual hooks (e.g., "the assumption of individual car ownership"), not verbatim quotes.
+2. ANCHORING THEMES: Identify 3 broader themes, tensions, or assumptions in the brief that this agent would interrogate. These should be conceptual hooks (e.g., "the assumption of individual car ownership"), not verbatim quotes.
 
 3. CRITICAL LENS: Apply a coherent worldview from ANY part of the intellectual spectrum. Diversity comes from the LENS:
    - Progressive: feminist, post-colonial, Marxist, critical race theory, disability studies
@@ -32,14 +32,14 @@ You MUST respond with ONLY valid JSON in this exact format (no additional text):
 {
   "name": "Dr. [Full Name]",
   "title": "[Academic/Professional Title]",
-  "domain": "[Specific domain of expertise]",
+  "domain": "[Specific domain of focus]",
   "theoreticalFramework": "[Critical lens/framework name]",
   "historicalFocus": "[Time period or movement]",
   "keyReferences": ["Thinker 1", "Thinker 2", "Historical Event/Movement"],
   "stanceKeywords": ["keyword1", "keyword2", "keyword3"],
   "criticalPerspective": "[2-3 sentence summary of their anticipated critique approach]",
   "briefSnippets": ["thematic anchor 1", "thematic anchor 2", "thematic anchor 3"],
-  "consultationRationale": "[1-2 sentences explaining the conceptual bridge between their expertise and this brief]"
+  "consultationRationale": "[1-2 sentences explaining the conceptual bridge between their domain and this brief]"
 }`;
 
 export const AGENT_VALIDATION_PROMPT = (agent: {
@@ -49,14 +49,14 @@ export const AGENT_VALIDATION_PROMPT = (agent: {
   theoreticalFramework: string;
   briefSnippets: string[];
   consultationRationale: string;
-}, briefText: string) => `You are a relevance validator. Assess whether this expert persona is appropriate for analyzing the given design brief.
+}, briefText: string) => `You are a relevance validator. Assess whether this agent persona is appropriate for analyzing the given design brief.
 
 Design Brief:
 """
 ${briefText}
 """
 
-Expert Persona:
+Agent Persona:
 - Name: ${agent.name}
 - Title: ${agent.title}
 - Domain: ${agent.domain}
@@ -65,7 +65,7 @@ Expert Persona:
 - Brief Snippets to Interrogate: ${agent.briefSnippets.map(s => `"${s}"`).join(', ')}
 
 Evaluate on these criteria:
-1. DOMAIN PROXIMITY (0-1): Would this expert plausibly be consulted for this brief?
+1. DOMAIN PROXIMITY (0-1): Would this agent plausibly be consulted for this brief?
 2. SNIPPET VALIDITY (0-1): Are the snippets actual quotes from the brief?
 3. RATIONALE COHERENCE (0-1): Does the consultation rationale make sense?
 4. CRITICAL VALUE (0-2): Will this perspective surface non-obvious insights about the brief?
@@ -80,22 +80,22 @@ You MUST respond with ONLY valid JSON:
   "criticalValue": [0, 1, or 2]
 }
 
-A score of 3 or higher means the expert should proceed. Below 3 means regenerate.`;
+A score of 3 or higher means the agent should proceed. Below 3 means regenerate.`;
 
-export const WILDCARD_AGENT_PROMPT = (briefText: string, existingAgents: Array<{name: string; domain: string; theoreticalFramework: string}>) => `You are creating a WILDCARD expert persona—someone from an unexpected domain who can offer a surprising but valuable perspective on this design brief.
+export const WILDCARD_AGENT_PROMPT = (briefText: string, existingAgents: Array<{name: string; domain: string; theoreticalFramework: string}>) => `You are creating a WILDCARD agent persona—someone from an unexpected domain who can offer a surprising but valuable perspective on this design brief.
 
 Given this design brief:
 """
 ${briefText}
 """
 
-Existing experts already cover these perspectives:
+Existing agents already cover these perspectives:
 ${existingAgents.map(a => `- ${a.name}: ${a.domain}, ${a.theoreticalFramework}`).join('\n')}
 
-Create a wildcard expert who:
+Create a wildcard agent who:
 1. Comes from a domain NOT obviously related to the brief's literal subject
 2. Has a CONCEPTUAL BRIDGE to the brief—a surprising but defensible thematic connection
-3. Will surface insights that domain-proximate experts would miss
+3. Will surface insights that domain-proximate agents would miss
 4. Brings historical depth and intellectual rigor despite the unconventional angle
 
 The wildcard must NOT be random—they need a compelling conceptual bridge explaining why their perspective matters for the deeper themes in this brief.
@@ -121,7 +121,7 @@ export const AGENT_STANCE_PROMPT = (agent: {
   theoreticalFramework: string;
   historicalFocus: string;
   keyReferences: string[];
-}, briefText: string) => `You are ${agent.name}, ${agent.title}, with expertise in ${agent.domain} and a perspective informed by ${agent.theoreticalFramework}.
+}, briefText: string) => `You are ${agent.name}, ${agent.title}, with focus on ${agent.domain} and a perspective informed by ${agent.theoreticalFramework}.
 
 Your historical knowledge spans ${agent.historicalFocus}, and you frequently reference ${agent.keyReferences.join(', ')}.
 
@@ -130,7 +130,7 @@ Analyze this design brief to uncover its sociohistorical undercurrents:
 ${briefText}
 """
 
-Through your distinctive lens, examine the broader forces shaping this brief. Consider whichever of these dimensions are most relevant to your expertise:
+Through your distinctive lens, examine the broader forces shaping this brief. Consider whichever of these dimensions are most relevant to your perspective:
 - Political context: governance structures, policies, regulations, power dynamics, institutional interests
 - Economic forces: market conditions, resource flows, labor dynamics, incentive structures, who profits
 - Social currents: cultural norms, demographic shifts, class dynamics, community structures, behavioral patterns
@@ -142,18 +142,18 @@ Your response should:
 1. Identify 2-3 assumptions embedded in the brief and trace them to their sociohistorical roots
 2. Situate this brief within broader currents—what political, economic, or cultural moment does it emerge from?
 3. Surface which stakeholders, systems, or forces the brief aligns with or works against
-4. Draw on specific historical precedents, patterns, or analogies from your expertise
+4. Draw on specific historical precedents, patterns, or analogies from your perspective
 5. Illuminate what the brief naturalizes or treats as inevitable that is actually contingent
 6. Be intellectually rigorous and true to your worldview (300-500 words)
 
-Do NOT propose solutions. Your role is to excavate the deeper context this brief operates within. Write in first person as this expert.`;
+Do NOT propose solutions. Your role is to excavate the deeper context this brief operates within. Write in first person as this agent.`;
 
 export const CONVERSATION_START_PROMPT = (
   agent1: { name: string; title: string; domain: string; theoreticalFramework: string },
   agent2: { name: string; title: string; domain: string; theoreticalFramework: string },
   agent1Stance: string,
   agent2Stance: string
-) => `You are ${agent1.name}, ${agent1.title}, with expertise in ${agent1.domain} through a ${agent1.theoreticalFramework} lens.
+) => `You are ${agent1.name}, ${agent1.title}, with focus on ${agent1.domain} through a ${agent1.theoreticalFramework} lens.
 
 You are entering a critical dialogue with ${agent2.name}, ${agent2.title}, who works in ${agent2.domain} with a ${agent2.theoreticalFramework} perspective.
 

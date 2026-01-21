@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, LayoutGrid, Box } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-// Mock PESTEL insights from expert conversations
+// Mock PESTEL insights from agent conversations
 const mockPestelInsights = [
   { dimension: 'Political', insight: 'Who controls the narrative? Management surveillance vs worker autonomy', color: 'from-red-500 to-red-600' },
   { dimension: 'Economic', insight: 'Productivity gains flow to shareholders, not the workers producing them', color: 'from-amber-500 to-amber-600' },
@@ -66,7 +66,7 @@ const mockFrames: Frame[] = [
   {
     id: 'frame-4',
     title: 'The Democratic Participation Frame',
-    coreNarrative: 'The brief assumes a top-down design process where experts define problems for users to consume. But what if affected communities were co-designers rather than research subjects?',
+    coreNarrative: 'The brief assumes a top-down design process where designers define problems for users to consume. But what if affected communities were co-designers rather than research subjects?',
     makesVisible: 'The colonial epistemology embedded in "user research" that extracts knowledge without sharing power.',
     historicalGrounding: 'Participatory action research traditions from Latin America and community organizing show alternatives to extractive design.',
     designImplications: 'Build in governance mechanisms. Let communities fork, modify, and own their tools rather than just "provide feedback."',

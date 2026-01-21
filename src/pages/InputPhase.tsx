@@ -55,7 +55,7 @@ export function InputPhase() {
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           Surface hidden assumptions, challenge normative frameworks, and discover 
-          alternative problem narratives through critical discourse between AI expert personas.
+          alternative problem narratives through critical discourse between AI agent personas.
         </p>
       </div>
 
@@ -114,18 +114,18 @@ export function InputPhase() {
               <div className="flex items-center gap-2">
                 <Shuffle className="w-4 h-4 text-accent" />
                 <label htmlFor="wildcard-toggle" className="font-medium text-foreground cursor-pointer">
-                  Include Wildcard Expert
+                  Include Wildcard Agent
                 </label>
               </div>
             </div>
           </div>
           <p className="text-sm text-muted-foreground mt-2 ml-12">
-            Add one expert from an unexpected domain who can offer surprising perspectives. 
-            They'll have a concrete bridge connecting their expertise to your brief.
+            Add one agent from an unexpected domain who can offer surprising perspectives. 
+            They'll have a concrete bridge connecting their domain to your brief.
           </p>
           {state.includeWildcard && (
             <p className="text-xs text-accent mt-2 ml-12">
-              One of your {state.agentCount} experts will be a wildcard.
+              One of your {state.agentCount} agents will be a wildcard.
             </p>
           )}
         </div>
@@ -139,7 +139,7 @@ export function InputPhase() {
           onClick={handleSubmit}
           className="px-8 py-6 text-lg font-medium bg-primary hover:bg-primary/90 shadow-editorial btn-glow"
         >
-          Generate Expert Agents
+          Generate Agents
           <ArrowRight className="w-5 h-5 ml-2" />
         </Button>
       </div>
